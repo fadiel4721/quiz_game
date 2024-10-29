@@ -26,7 +26,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             await users.doc(userCredential.user!.uid).get();
 
         if (!userDoc.exists) {
-          // Jika pengguna belum ada, buat dokumen baru
+          
           await users.doc(userCredential.user!.uid).set({
             'email': userCredential.user!.email,
             'uid': userCredential.user!.uid,
@@ -36,10 +36,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             'lastLoginAt': Timestamp.now(),
           });
         } else {
-          // Jika pengguna sudah ada, update hanya lastLoginAt
+          
           await users.doc(userCredential.user!.uid).set({
             'lastLoginAt': Timestamp.now(),
-          }, SetOptions(merge: true)); // Merging untuk update
+          }, SetOptions(merge: true)); 
         }
 
         emit(AuthStateLoaded());

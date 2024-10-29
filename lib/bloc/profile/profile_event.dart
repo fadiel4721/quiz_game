@@ -11,12 +11,9 @@ class ProfileEventGet extends ProfileEvent {
 
 class ProfileEventUpdateName extends ProfileEvent {
   final String name;
+  File? file;
   final String uid;
-  ProfileEventUpdateName({required this.uid, required this.name});
+  ProfileEventUpdateName({required this.uid, required this.name, this.file});
 }
 
-class ProfileEventUpdateImage extends ProfileEvent {
-  final XFile image;
-  final String uid;
-  ProfileEventUpdateImage({required this.image, required this.uid});
-}
+class ProfileEventPickedImage extends ProfileEvent {}

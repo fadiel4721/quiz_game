@@ -16,8 +16,13 @@ final class ProfileStateLoaded extends ProfileState {
 final class ProfileStateError extends ProfileState {
   final String message;
 
-  ProfileStateError(this.message);
+  ProfileStateError({required this.message});
 }
-final class ProfileStateUpdated extends ProfileState {}
-final class ProfileStateImageUpdated extends ProfileState {}
 
+final class ProfileStateNameUpdated extends ProfileState {}
+
+final class ProfileStatePickedImage extends ProfileState {
+  final XFile image;
+
+  ProfileStatePickedImage({required this.image});
+}
