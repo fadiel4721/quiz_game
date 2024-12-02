@@ -1,7 +1,18 @@
+buildscript {
+    repositories {
+        google()  // Menambahkan repositori Google
+        mavenCentral()  // Menambahkan Maven Central
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.4.0' // Atau versi yang sesuai
+        classpath 'com.google.gms:google-services:4.3.15' // Versi terbaru
+    }
+}
+
 allprojects {
     repositories {
-        google()
-        mavenCentral()
+        google()  // Menambahkan repositori Google
+        mavenCentral()  // Menambahkan Maven Central
     }
 }
 

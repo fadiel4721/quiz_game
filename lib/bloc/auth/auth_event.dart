@@ -10,4 +10,6 @@ class AuthEventLogin extends AuthEvent {
   AuthEventLogin({required this.email, required this.password});
 }
 
+class AuthEventGoogleLogin extends AuthEvent {}
+
 class AuthEventLogout extends AuthEvent {}

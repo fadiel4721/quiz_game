@@ -8,9 +8,11 @@ final class AuthStateInitial extends AuthState {}
 final class AuthStateLoading extends AuthState {}
 
 final class AuthStateLoginSuccess extends AuthState {
-  final User? user; 
+  final User? user;
+  final String role;
+  final bool isAdmin;
 
-  AuthStateLoginSuccess(this.user);
+  AuthStateLoginSuccess(this.user, this.role, {this.isAdmin = false});
 }
 
 final class AuthStateError extends AuthState {

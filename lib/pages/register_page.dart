@@ -2,52 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart'; // Import Lottie
-import 'package:pm1_task_management/bloc/auth/auth_bloc.dart';
-import 'package:pm1_task_management/routes/router_name.dart';
-import 'package:pm1_task_management/visibility_cubit.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pm1_task_management/bloc/register/register_bloc.dart';
 import 'package:pm1_task_management/utils/constants.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class RegisterPage extends StatelessWidget {
+  RegisterPage({super.key});
+  final TextEditingController nameC = TextEditingController();
   final TextEditingController emailC = TextEditingController();
   final TextEditingController passC = TextEditingController();
+
+  // Default role is set to 'user'
+  final String _role = 'user'; // No need for dropdown, role is fixed
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocProvider(
-        create: (_) => AuthBloc(),
+        create: (_) => RegisterBloc(),
         child: Stack(
           fit: StackFit.expand,
           children: [
             // Background (SVG Image)
             SvgPicture.asset(
               "assets/svg/bg.svg",
-              fit: BoxFit.fitWidth,
+              fit: BoxFit.fitWidth, // Sama seperti di LoginPage
             ),
             SafeArea(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: kDefaultPadding),
-                child: SingleChildScrollView( // Untuk menghindari overflow
+                padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+                child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 20), // Spasi awal
+
                       // Lottie Animation
                       Center(
                         child: Lottie.asset(
-                          'assets/gif/hello_gif.json',
+                          'assets/gif/hello_gif.json', // Ubah animasi sesuai kebutuhan
                           width: 150,
                           height: 150,
                         ),
                       ),
-                      const SizedBox(height: 20), // Spasi antara animasi dan teks
+                      const SizedBox(height: 20),
 
                       // Welcome Text
                       Text(
-                        "Let's Play Quiz",
+                        "Create Account",
                         style: Theme.of(context)
                             .textTheme
                             .headlineMedium!
@@ -57,8 +61,24 @@ class LoginPage extends StatelessWidget {
                             ),
                       ),
                       const Text(
-                        "Masukkan email dan password",
+                        "Isi form untuk membuat akun baru",
                         style: TextStyle(color: Colors.white),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Name Field
+                      TextFormField(
+                        controller: nameC,
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          prefixIcon: const Icon(Icons.person),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 20),
 
@@ -78,57 +98,47 @@ class LoginPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
 
-                      // Password Field with Visibility Toggle
-                      BlocConsumer<VisibilityCubit, bool>(
-                        listener: (context, state) {},
-                        builder: (context, isObscured) {
-                          return TextFormField(
-                            controller: passC,
-                            obscureText: isObscured,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              prefixIcon: const Icon(Icons.lock),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  isObscured
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                ),
-                                onPressed: () {
-                                  context.read<VisibilityCubit>().change();
-                                },
-                              ),
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                          );
-                        },
+                      // Password Field
+                      TextFormField(
+                        controller: passC,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: const Icon(Icons.lock),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
                       ),
+                      const SizedBox(height: 20),
+
+                      // No role dropdown, it's fixed to 'user'
+
                       const SizedBox(height: 30),
 
-                      // Login Button
-                      BlocConsumer<AuthBloc, AuthState>(
+                      // Register Button
+                      BlocConsumer<RegisterBloc, RegisterState>(
                         listener: (context, state) {
-                          if (state is AuthStateError) {
+                          if (state is RegisterSuccess) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Registrasi berhasil!'),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                            Future.delayed(const Duration(seconds: 1), () {
+                              context.goNamed('login');
+                            });
+                          } else if (state is RegisterFailure) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(state.message),
                                 duration: const Duration(seconds: 3),
                               ),
                             );
-                          } else if (state is AuthStateLoginSuccess) {
-                            // Setelah login berhasil, cek role
-                            if (state.isAdmin) {
-                              // Redirect ke admin dashboard
-                              context.goNamed(Routes.adminDashboard);
-                            } else {
-                              // Redirect ke user dashboard
-                              context.goNamed(Routes.dashboard);
-                            }
                           }
                         },
                         builder: (context, state) {
@@ -150,20 +160,22 @@ class LoginPage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              onPressed: state is! AuthStateLoading
+                              onPressed: state is! RegisterLoading
                                   ? () {
-                                      context.read<AuthBloc>().add(
-                                            AuthEventLogin(
+                                      context.read<RegisterBloc>().add(
+                                            RegisterSubmitted(
+                                              name: nameC.text,
                                               email: emailC.text,
                                               password: passC.text,
+                                              role: _role,  // Role is fixed as 'user'
                                             ),
                                           );
                                     }
                                   : null,
-                              child: state is AuthStateLoading
+                              child: state is RegisterLoading
                                   ? const Text('Loading...')
                                   : Text(
-                                      'Login',
+                                      'Register',
                                       style: Theme.of(context)
                                           .textTheme
                                           .labelLarge!
@@ -173,24 +185,22 @@ class LoginPage extends StatelessWidget {
                           );
                         },
                       ),
-
                       const SizedBox(height: 20),
 
-                      // Link ke Halaman Register
+                      // Link ke Login Page
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
-                            "Don't have an account?",
+                            "Already have an account?",
                             style: TextStyle(color: Colors.white),
                           ),
                           TextButton(
                             onPressed: () {
-                             print("Navigating to Register Page");
-                              context.go('/register');
+                              context.goNamed('login');
                             },
                             child: const Text(
-                              "Register",
+                              "Login",
                               style: TextStyle(color: Colors.blue),
                             ),
                           ),
@@ -207,34 +217,3 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-
-
-
-                    // Sign in with other options
-                    // const Text(
-                    //   'Or sign in with',
-                    //   style: TextStyle(
-                    //     fontSize: 14,
-                    //     fontWeight: FontWeight.w400,
-                    //     color: Colors.grey,
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 10),
-
-                    // // Google Sign-In Button
-                    // SignInButton(
-                    //   buttonType: ButtonType.google,
-                    //   onPressed: () {
-                    //     context.read<AuthBloc>().add(AuthEventGoogleLogin());
-                    //   },
-                    // ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
