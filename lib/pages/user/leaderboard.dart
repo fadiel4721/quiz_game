@@ -18,6 +18,7 @@ class LeaderboardPage extends StatelessWidget {
         var participants = List<String>.from(matchData['participants'] ?? []); // List of userId (UID)
         var scores = Map<String, dynamic>.from(matchData['scores'] ?? {}); // Scores per UID
         var categoryUid = matchData['categoryUid']; // Ambil categoryUid dari match
+        var duration = matchData['duration'] ?? 0; // Ambil durasi dari match
 
         // Debugging: Cek isi participants dan scores
         print("Processing match: $matchId");
@@ -60,6 +61,12 @@ class LeaderboardPage extends StatelessWidget {
               print("Existing user found: ${existingUser['name']} with score: ${existingUser['score']}");
               if ((existingUser['score'] ?? 0) < score) {
                 existingUser['score'] = score; // Update score jika lebih tinggi
+                existingUser['duration'] = duration; // Update durasi jika skor lebih tinggi
+              } else if ((existingUser['score'] ?? 0) == score) {
+                // Jika skor sama, bandingkan durasi
+                if ((existingUser['duration'] ?? 0) > duration) {
+                  existingUser['duration'] = duration; // Update durasi jika lebih rendah
+                }
               }
             } else {
               // Jika user belum ada, tambahkan ke leaderboard
@@ -69,6 +76,7 @@ class LeaderboardPage extends StatelessWidget {
                 'photoUrl': photoUrl,
                 'score': score,
                 'categoryName': categoryName, // Tambahkan nama kategori
+                'duration': duration, // Tambahkan durasi
               });
             }
           } else {
@@ -78,8 +86,14 @@ class LeaderboardPage extends StatelessWidget {
         }
       }
 
-      // Urutkan leaderboard berdasarkan skor tertinggi
-      leaderboard.sort((a, b) => (b['score'] ?? 0).compareTo(a['score'] ?? 0));
+      // Urutkan leaderboard berdasarkan skor, lalu durasi
+      leaderboard.sort((a, b) {
+        if ((b['score'] ?? 0) != (a['score'] ?? 0)) {
+          return (b['score'] ?? 0).compareTo(a['score'] ?? 0); // Urutkan berdasarkan skor
+        }
+        return (a['duration'] ?? 0).compareTo(b['duration'] ?? 0); // Jika skor sama, urutkan berdasarkan durasi
+      });
+
       return leaderboard;
     } catch (e) {
       print("Error fetching leaderboard data: $e");
@@ -96,7 +110,7 @@ class LeaderboardPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<List<Map<String, dynamic>>>( 
+        child: FutureBuilder<List<Map<String, dynamic>>>(
           future: fetchLeaderboardData(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -118,7 +132,7 @@ class LeaderboardPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Text(
-                    'Leaderboard Solo Players',
+                    'Leaderboard Solo Quiz Game',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -132,6 +146,17 @@ class LeaderboardPage extends StatelessWidget {
                     itemCount: leaderboard.length,
                     itemBuilder: (context, index) {
                       final user = leaderboard[index];
+
+                      // Menambahkan medali untuk 3 teratas
+                      String medal = '';
+                      if (index == 0) {
+                        medal = 'Gold'; // Medali Emas
+                      } else if (index == 1) {
+                        medal = 'Silver'; // Medali Perak
+                      } else if (index == 2) {
+                        medal = 'Bronze'; // Medali Perunggu
+                      }
+
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         shape: RoundedRectangleBorder(
@@ -154,21 +179,44 @@ class LeaderboardPage extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          subtitle: Text(
-                            user['categoryName'], // Menampilkan nama kategori
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontStyle: FontStyle.italic,
-                              color: Colors.orangeAccent,
-                            ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                user['categoryName'], // Menampilkan nama kategori
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontStyle: FontStyle.italic,
+                                  color: Colors.orangeAccent,
+                                ),
+                              ),
+                              Text(
+                                "Duration: ${user['duration']} seconds", // Menampilkan durasi
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
                           ),
-                          trailing: Text(
-                            "${user['score']} Points",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          trailing: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              if (medal == 'Gold')
+                                const Icon(Icons.star, color: Colors.amber, size: 28)
+                              else if (medal == 'Silver')
+                                const Icon(Icons.star, color: Colors.grey, size: 28)
+                              else if (medal == 'Bronze')
+                                const Icon(Icons.star, color: Colors.orange, size: 28),
+                              Text(
+                                "${user['score']} Points",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );

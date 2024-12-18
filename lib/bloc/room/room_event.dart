@@ -11,6 +11,7 @@ abstract class RoomEvent extends Equatable {
 class CreateRoomEvent extends RoomEvent {
   final String uid; // UID pengguna yang membuat room
   final String type; // Tipe room: single atau double
+  
 
   const CreateRoomEvent({required this.uid, required this.type});
 

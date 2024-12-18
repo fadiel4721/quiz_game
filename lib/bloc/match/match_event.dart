@@ -72,3 +72,12 @@ class NextQuestionEvent extends MatchEvent {
   @override
   List<Object?> get props => [matchId];
 }
+
+class PreviousQuestionEvent extends MatchEvent {
+  final String matchId;
+
+  const PreviousQuestionEvent({required this.matchId});
+
+  @override
+  List<Object?> get props => [matchId];
+}

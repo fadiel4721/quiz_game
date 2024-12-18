@@ -15,7 +15,8 @@ import 'package:pm1_task_management/pages/splash_screen.dart';
 import 'package:pm1_task_management/pages/admin/admin_dashboard.dart'; // Import admin dashboard
 import 'package:pm1_task_management/pages/user/dashboard.dart';
 import 'package:pm1_task_management/pages/user/quiz_page.dart';
-import 'package:pm1_task_management/pages/user/room_page.dart'; // Import user dashboard
+import 'package:pm1_task_management/pages/user/room_page.dart';
+import 'package:pm1_task_management/pages/user/select_room_page.dart'; // Import user dashboard
 
 final GoRouter router = GoRouter(
   initialLocation: '/splash', // Set '/splash' as the initial location
@@ -115,6 +116,12 @@ final GoRouter router = GoRouter(
           name: 'quizPage',
           builder: (context, state) => QuizPage(),
         ),
+        GoRoute(
+          path: 'selectRoomPage', // Path relatif
+          name: 'selectRoomPage',
+          builder: (context, state) => SelectRoomPage(),
+        ),
+
         GoRoute(
           path: 'room/:roomCode',
           name: 'roomPage',

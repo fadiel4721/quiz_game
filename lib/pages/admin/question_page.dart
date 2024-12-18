@@ -4,8 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pm1_task_management/bloc/question/question_bloc.dart';
 import 'package:pm1_task_management/bloc/question/question_event.dart';
 import 'package:pm1_task_management/bloc/question/question_state.dart';
-import 'package:pm1_task_management/models/question_model.dart';
-import 'package:pm1_task_management/routes/router_name.dart';
+
 
 class QuestionPage extends StatelessWidget {
   const QuestionPage({super.key});

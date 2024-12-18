@@ -5,14 +5,13 @@ import 'package:lottie/lottie.dart'; // Import Lottie
 import 'package:pm1_task_management/bloc/register/register_bloc.dart';
 import 'package:pm1_task_management/utils/constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterPage extends StatelessWidget {
   RegisterPage({super.key});
   final TextEditingController nameC = TextEditingController();
   final TextEditingController emailC = TextEditingController();
   final TextEditingController passC = TextEditingController();
+  final TextEditingController confirmPassC = TextEditingController(); // Controller untuk confirm password
 
   // Default role is set to 'user'
   final String _role = 'user'; // No need for dropdown, role is fixed
@@ -115,7 +114,22 @@ class RegisterPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
 
-                      // No role dropdown, it's fixed to 'user'
+                      // Confirm Password Field
+                      TextFormField(
+                        controller: confirmPassC,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          prefixIcon: const Icon(Icons.lock),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
 
                       const SizedBox(height: 30),
 
@@ -162,14 +176,23 @@ class RegisterPage extends StatelessWidget {
                               ),
                               onPressed: state is! RegisterLoading
                                   ? () {
-                                      context.read<RegisterBloc>().add(
-                                            RegisterSubmitted(
-                                              name: nameC.text,
-                                              email: emailC.text,
-                                              password: passC.text,
-                                              role: _role,  // Role is fixed as 'user'
-                                            ),
-                                          );
+                                      // Check if password and confirm password match
+                                      if (passC.text != confirmPassC.text) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Passwords do not match!'),
+                                          ),
+                                        );
+                                      } else {
+                                        context.read<RegisterBloc>().add(
+                                              RegisterSubmitted(
+                                                name: nameC.text,
+                                                email: emailC.text,
+                                                password: passC.text,
+                                                role: _role,  // Role is fixed as 'user'
+                                              ),
+                                            );
+                                      }
                                     }
                                   : null,
                               child: state is RegisterLoading

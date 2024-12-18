@@ -14,4 +14,5 @@ abstract class Routes {
   static const quizPage = 'quizPage';
   static const roomPage = 'roomPage';
   static const leaderBoard = 'leaderBoard';
+  static const selectRoomPage = 'selectRoomPage';
 }

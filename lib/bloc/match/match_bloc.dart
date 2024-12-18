@@ -15,6 +15,7 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
     on<LoadQuestionsEvent>(_onLoadQuestionsEvent);
     on<AnswerQuestionEvent>(_onAnswerQuestionEvent);
     on<NextQuestionEvent>(_onNextQuestionEvent);
+    on<PreviousQuestionEvent>(_onPreviousQuestionEvent);
   }
 
   Future<void> _onStartMatch(
@@ -84,81 +85,81 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
     }
   }
 
- Future<void> _onLoadQuestionsEvent(
-  LoadQuestionsEvent event,
-  Emitter<MatchState> emit,
-) async {
-  try {
-    final snapshot = await firestore
-        .collection('questions')
-        .where('categoryUid', isEqualTo: event.categoryUid)
-        .get();
-
-    if (snapshot.docs.isEmpty) {
-      throw Exception(
-          "No questions found for categoryUid: ${event.categoryUid}");
-    }
-
-    // Mengubah soal dari snapshot menjadi list
-    final questions = snapshot.docs
-        .map((doc) => QuestionModel.fromFirestore(doc.data(), doc.id))
-        .toList();
-
-    // Mengacak urutan soal menggunakan shuffle()
-    questions.shuffle();
-
-    emit(QuestionsLoaded(
-      questions: questions,
-      currentIndex: 0,
-      scores: {},
-      answersColors: {},
-    ));
-  } catch (e) {
-    emit(MatchFailure("Failed to load questions: ${e.toString()}"));
-  }
-}
-
-
- Future<void> _onAnswerQuestionEvent(
-  AnswerQuestionEvent event,
-  Emitter<MatchState> emit,
-) async {
-  final currentState = state;
-
-  if (currentState is QuestionsLoaded) {
+  Future<void> _onLoadQuestionsEvent(
+    LoadQuestionsEvent event,
+    Emitter<MatchState> emit,
+  ) async {
     try {
-      final currentQuestion = currentState.questions[currentState.currentIndex];
-      final isCorrect = currentQuestion.answer == event.selectedAnswer;
+      final snapshot = await firestore
+          .collection('questions')
+          .where('categoryUid', isEqualTo: event.categoryUid)
+          .get();
 
-      final newScores = Map<String, int>.from(currentState.scores);
-      newScores[event.userId] = (newScores[event.userId] ?? 0) + (isCorrect ? 10 : 0);
+      if (snapshot.docs.isEmpty) {
+        throw Exception(
+            "No questions found for categoryUid: ${event.categoryUid}");
+      }
 
-      final updatedAnswersColors = Map<int, Color>.from(currentState.answersColors);
-      updatedAnswersColors[currentState.currentIndex] = isCorrect ? Colors.green : Colors.red;
+      final questions = snapshot.docs
+          .map((doc) => QuestionModel.fromFirestore(doc.data(), doc.id))
+          .toList();
 
-      await firestore
-          .collection('matches')
-          .doc(event.matchId)
-          .update({'scores': newScores});
-
-      emit(QuestionAnswered(
-        currentIndex: currentState.currentIndex,
-        isCorrect: isCorrect,
-        newScore: newScores[event.userId] ?? 0,
-        answerColor: updatedAnswersColors[currentState.currentIndex]!,
-      ));
+      questions.shuffle();
 
       emit(QuestionsLoaded(
-        questions: currentState.questions,
-        currentIndex: currentState.currentIndex,
-        scores: newScores,
-        answersColors: updatedAnswersColors,
+        questions: questions,
+        currentIndex: 0,
+        scores: {},
+        answersColors: {},
       ));
     } catch (e) {
-      emit(MatchFailure("Failed to answer question: ${e.toString()}"));
+      emit(MatchFailure("Failed to load questions: ${e.toString()}"));
     }
   }
-}
+
+  Future<void> _onAnswerQuestionEvent(
+    AnswerQuestionEvent event,
+    Emitter<MatchState> emit,
+  ) async {
+    final currentState = state;
+
+    if (currentState is QuestionsLoaded) {
+      try {
+        final currentQuestion = currentState.questions[currentState.currentIndex];
+        final isCorrect = currentQuestion.answer == event.selectedAnswer;
+
+        final newScores = Map<String, int>.from(currentState.scores);
+        newScores[event.userId] = (newScores[event.userId] ?? 0) + (isCorrect ? 10 : 0);
+
+        final updatedAnswersColors =
+            Map<int, Color>.from(currentState.answersColors);
+        updatedAnswersColors[currentState.currentIndex] =
+            isCorrect ? Colors.green : Colors.red;
+
+        await firestore
+            .collection('matches')
+            .doc(event.matchId)
+            .update({'scores': newScores});
+
+        emit(QuestionAnswered(
+          currentIndex: currentState.currentIndex,
+          isCorrect: isCorrect,
+          newScore: newScores[event.userId] ?? 0,
+          answerColor: updatedAnswersColors[currentState.currentIndex]!,
+        ));
+
+        emit(QuestionsLoaded(
+          questions: currentState.questions,
+          currentIndex: currentState.currentIndex,
+          scores: newScores,
+          answersColors: updatedAnswersColors,
+        ));
+      } catch (e) {
+        emit(MatchFailure("Failed to answer question: ${e.toString()}"));
+      }
+    }
+  }
+
   void _onNextQuestionEvent(
     NextQuestionEvent event,
     Emitter<MatchState> emit,
@@ -177,6 +178,24 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
         emit(MatchCompleted(
           matchId: event.matchId,
           finalScores: currentState.scores,
+        ));
+      }
+    }
+  }
+
+  void _onPreviousQuestionEvent(
+    PreviousQuestionEvent event,
+    Emitter<MatchState> emit,
+  ) {
+    final currentState = state;
+
+    if (currentState is QuestionsLoaded) {
+      if (currentState.currentIndex > 0) {
+        emit(QuestionsLoaded(
+          questions: currentState.questions,
+          currentIndex: currentState.currentIndex - 1,
+          scores: currentState.scores,
+          answersColors: currentState.answersColors,
         ));
       }
     }

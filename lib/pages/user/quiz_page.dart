@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:pm1_task_management/models/category_model.dart';
 import 'package:pm1_task_management/pages/user/question_page.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // Import package svg
 
 class QuizPage extends StatelessWidget {
   const QuizPage({Key? key}) : super(key: key);
@@ -73,17 +74,20 @@ class QuizPage extends StatelessWidget {
   }
 
   // Fungsi untuk memperbarui subkoleksi `categories` pada setiap dokumen `matches`
-  Future<void> updateCategoriesSubcollection(String matchId, String categoryUid) async {
+  Future<void> updateCategoriesSubcollection(
+      String matchId, String categoryUid) async {
     final firestore = FirebaseFirestore.instance;
 
     try {
       // Ambil data kategori berdasarkan categoryUid
-      final categoryDoc = await firestore.collection('categories').doc(categoryUid).get();
+      final categoryDoc =
+          await firestore.collection('categories').doc(categoryUid).get();
 
       if (!categoryDoc.exists) return;
 
       final categoryData = categoryDoc.data()!;
-      final categoryName = categoryData['name'] ?? 'Unknown Category'; // Ambil nama kategori
+      final categoryName =
+          categoryData['name'] ?? 'Unknown Category'; // Ambil nama kategori
 
       // Tambahkan data kategori ke subkoleksi `categories` di dokumen `matches`
       await firestore
@@ -102,126 +106,136 @@ class QuizPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pilih Kategori'),
-      ),
-      body: FutureBuilder<List<CategoryModel>>(
-        future: fetchCategories(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          final categories = snapshot.data!;
-          return GridView.builder(
-            padding: const EdgeInsets.all(16.0),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-            ),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              return GestureDetector(
-                onTap: () async {
-                  // Ambil userId dari Firebase Auth
-                  String userId = FirebaseAuth.instance.currentUser?.uid ?? 'defaultUserId';
-
-                  if (userId == 'defaultUserId') {
-                    // Arahkan pengguna ke halaman login jika userId tidak ditemukan
-                    Navigator.pushReplacementNamed(context, '/login');
-                    return;
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Background (SVG Image)
+          SvgPicture.asset(
+            "assets/svg/bg.svg",
+            fit: BoxFit.fitWidth,
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: FutureBuilder<List<CategoryModel>>(
+                future: fetchCategories(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
                   }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  final categories = snapshot.data!;
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      return GestureDetector(
+                        onTap: () async {
+                          String userId = FirebaseAuth.instance.currentUser?.uid ?? 'defaultUserId';
 
-                  try {
-                    // Cek apakah sudah ada match yang aktif dengan kategori ini
-                    String? existingMatchId = await findExistingMatch(category.uid);
+                          if (userId == 'defaultUserId') {
+                            Navigator.pushReplacementNamed(context, '/login');
+                            return;
+                          }
 
-                    if (existingMatchId != null) {
-                      // Perbarui subkoleksi `users` pada match yang ada
-                      await updateUsersSubcollections(existingMatchId);
-                      // Perbarui subkoleksi `categories` pada match yang ada
-                      await updateCategoriesSubcollection(existingMatchId, category.uid);
+                          try {
+                            String? existingMatchId =
+                                await findExistingMatch(category.uid);
 
-                      // Jika ada pertandingan yang sudah ada, gunakan pertandingan tersebut
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => QuestionsPage(
-                            categoryUid: category.uid,
-                            matchId: existingMatchId,
-                            userId: userId,
+                            if (existingMatchId != null) {
+                              await updateUsersSubcollections(existingMatchId);
+                              await updateCategoriesSubcollection(
+                                  existingMatchId, category.uid);
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => QuestionsPage(
+                                    categoryUid: category.uid,
+                                    matchId: existingMatchId,
+                                    userId: userId,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              String matchId =
+                                  await createMatch(category.uid, userId);
+
+                              await updateUsersSubcollections(matchId);
+                              await updateCategoriesSubcollection(
+                                  matchId, category.uid);
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => QuestionsPage(
+                                    categoryUid: category.uid,
+                                    matchId: matchId,
+                                    userId: userId,
+                                  ),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: ${e.toString()}')),
+                            );
+                          }
+                        },
+                        child: Card(
+                          color: const Color(0xFF001F3F), // Warna card yang sama dengan latar belakang
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          elevation: 5,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Membungkus gambar dengan ClipRRect untuk border radius
+                              category.imageUrl.isNotEmpty
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(12.0), // Menambahkan radius pada sudut gambar
+                                      child: Image.network(
+                                        category.imageUrl,
+                                        width: 50,
+                                        height: 50,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.quiz,
+                                      size: 50,
+                                      color: Colors.blueAccent,
+                                    ),
+                              const SizedBox(height: 10),
+                              Text(
+                                category.name,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.blueAccent,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
                         ),
                       );
-                    } else {
-                      // Jika tidak ada pertandingan aktif, buat pertandingan baru dengan tipe "single"
-                      String matchId = await createMatch(category.uid, userId);
-
-                      // Perbarui subkoleksi `users` pada match baru
-                      await updateUsersSubcollections(matchId);
-                      // Perbarui subkoleksi `categories` pada match baru
-                      await updateCategoriesSubcollection(matchId, category.uid);
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => QuestionsPage(
-                            categoryUid: category.uid,
-                            matchId: matchId,
-                            userId: userId,
-                          ),
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    // Tangani jika tidak dapat membuat atau memperbarui matchId
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: ${e.toString()}')),
-                    );
-                  }
+                    },
+                  );
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3), // posisi bayangan
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.category,
-                        size: 50,
-                        color: Colors.blueAccent,
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        category.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.blueAccent,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -232,7 +246,7 @@ class QuizPage extends StatelessWidget {
 
     await matchRef.set({
       'categoryUid': categoryUid,
-      'isActive': true,
+      'isActive': false,
       'scores': {userId: 0}, // Inisialisasi skor dengan userId
       'participants': [userId], // Gunakan userId untuk participants
       'startTime': FieldValue.serverTimestamp(),

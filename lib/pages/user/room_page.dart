@@ -11,7 +11,7 @@ class RoomPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
         title: Text(
-          'Room Code: $roomCode',
+          'Loby Room',
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,

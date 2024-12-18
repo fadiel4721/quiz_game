@@ -31,34 +31,28 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     }
   }
 
-  Future<void> _onAddCategory(
-      AddCategory event, Emitter<CategoryState> emit) async {
-    try {
-      // Firebase akan otomatis menghasilkan ID
-      final docRef = await _firestore.collection('categories').add(
-            event.category.toFirestore(),
-          );
-
-      // Setelah berhasil, tambahkan UID ke dokumen
-      await docRef.update({'uid': docRef.id});
-      add(FetchCategories());
-    } catch (e) {
-      emit(CategoryError(e.toString()));
-    }
+  Future<void> _onAddCategory(AddCategory event, Emitter<CategoryState> emit) async {
+  try {
+    final docRef = await _firestore.collection('categories').add(
+          event.category.toFirestore(),
+        );
+    await docRef.update({'uid': docRef.id});
+    add(FetchCategories());
+  } catch (e) {
+    emit(CategoryError(e.toString()));
   }
+}
 
-  Future<void> _onUpdateCategory(
-      UpdateCategory event, Emitter<CategoryState> emit) async {
-    try {
-      await _firestore
-          .collection('categories')
-          .doc(event.category.id)
-          .update(event.category.toFirestore());
-      add(FetchCategories());
-    } catch (e) {
-      emit(CategoryError(e.toString()));
-    }
+Future<void> _onUpdateCategory(UpdateCategory event, Emitter<CategoryState> emit) async {
+  try {
+    await _firestore.collection('categories').doc(event.category.id).update(
+      event.category.toFirestore(),
+    );
+    add(FetchCategories());
+  } catch (e) {
+    emit(CategoryError(e.toString()));
   }
+}
 
   Future<void> _onDeleteCategory(
       DeleteCategory event, Emitter<CategoryState> emit) async {

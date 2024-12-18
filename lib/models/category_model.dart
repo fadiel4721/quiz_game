@@ -2,11 +2,13 @@ class CategoryModel {
   final String id; // Document ID (UID Firebase)
   final String name;
   final String uid; // UID yang sama dengan Firebase UID
+  final String imageUrl; // URL gambar kategori
 
   CategoryModel({
     required this.id,
     required this.name,
     required this.uid,
+    required this.imageUrl,
   });
 
   // Konversi dari Firestore ke model
@@ -18,6 +20,7 @@ class CategoryModel {
       id: documentId,
       name: json['name'] ?? '',
       uid: json['uid'] ?? documentId, // Pastikan UID selalu sesuai dengan Firebase
+      imageUrl: json['imageUrl'] ?? '', // Ambil URL gambar jika ada
     );
   }
 
@@ -26,6 +29,7 @@ class CategoryModel {
     return {
       'name': name,
       'uid': uid,
+      'imageUrl': imageUrl, // Simpan URL gambar
     };
   }
 }

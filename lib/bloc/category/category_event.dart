@@ -26,6 +26,7 @@ class UpdateCategory extends CategoryEvent {
   List<Object?> get props => [category];
 }
 
+
 class DeleteCategory extends CategoryEvent {
   final String id; // Document ID
 
