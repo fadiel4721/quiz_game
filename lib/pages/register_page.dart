@@ -11,7 +11,8 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController nameC = TextEditingController();
   final TextEditingController emailC = TextEditingController();
   final TextEditingController passC = TextEditingController();
-  final TextEditingController confirmPassC = TextEditingController(); // Controller untuk confirm password
+  final TextEditingController confirmPassC =
+      TextEditingController(); // Controller untuk confirm password
 
   // Default role is set to 'user'
   final String _role = 'user'; // No need for dropdown, role is fixed
@@ -31,7 +32,8 @@ class RegisterPage extends StatelessWidget {
             ),
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: kDefaultPadding),
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,11 +59,13 @@ class RegisterPage extends StatelessWidget {
                             .copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
+                              fontFamily: 'NeonLight',
                             ),
                       ),
                       const Text(
                         "Isi form untuk membuat akun baru",
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(
+                            color: Colors.white, fontFamily: 'NeonLight'),
                       ),
                       const SizedBox(height: 20),
 
@@ -70,6 +74,10 @@ class RegisterPage extends StatelessWidget {
                         controller: nameC,
                         decoration: InputDecoration(
                           labelText: 'Name',
+                          labelStyle: const TextStyle(
+                            fontFamily: 'NeonLight',
+                            color: Colors.black,
+                          ),
                           prefixIcon: const Icon(Icons.person),
                           filled: true,
                           fillColor: Colors.grey[200],
@@ -86,6 +94,10 @@ class RegisterPage extends StatelessWidget {
                         controller: emailC,
                         decoration: InputDecoration(
                           labelText: 'Email',
+                          labelStyle: const TextStyle(
+                            fontFamily: 'NeonLight',
+                            color: Colors.black,
+                          ),
                           prefixIcon: const Icon(Icons.email),
                           filled: true,
                           fillColor: Colors.grey[200],
@@ -103,6 +115,10 @@ class RegisterPage extends StatelessWidget {
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Password',
+                          labelStyle: const TextStyle(
+                            fontFamily: 'NeonLight',
+                            color: Colors.black,
+                          ),
                           prefixIcon: const Icon(Icons.lock),
                           filled: true,
                           fillColor: Colors.grey[200],
@@ -120,6 +136,10 @@ class RegisterPage extends StatelessWidget {
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
+                          labelStyle: const TextStyle(
+                            fontFamily: 'NeonLight',
+                            color: Colors.black,
+                          ),
                           prefixIcon: const Icon(Icons.lock),
                           filled: true,
                           fillColor: Colors.grey[200],
@@ -178,9 +198,11 @@ class RegisterPage extends StatelessWidget {
                                   ? () {
                                       // Check if password and confirm password match
                                       if (passC.text != confirmPassC.text) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           const SnackBar(
-                                            content: Text('Passwords do not match!'),
+                                            content:
+                                                Text('Passwords do not match!'),
                                           ),
                                         );
                                       } else {
@@ -189,20 +211,31 @@ class RegisterPage extends StatelessWidget {
                                                 name: nameC.text,
                                                 email: emailC.text,
                                                 password: passC.text,
-                                                role: _role,  // Role is fixed as 'user'
+                                                role:
+                                                    _role, // Role is fixed as 'user'
                                               ),
                                             );
                                       }
                                     }
                                   : null,
                               child: state is RegisterLoading
-                                  ? const Text('Loading...')
+                                  ? const Text(
+                                      'Loading...',
+                                      style: TextStyle(
+                                        fontFamily:
+                                            'NeonLight', // Update font family for loading text
+                                      ),
+                                    )
                                   : Text(
                                       'Register',
                                       style: Theme.of(context)
                                           .textTheme
                                           .labelLarge!
-                                          .copyWith(color: Colors.black),
+                                          .copyWith(
+                                            color: Colors.black,
+                                            fontFamily:
+                                                'NeonLight', // Font Family NeonLight
+                                          ),
                                     ),
                             ),
                           );
@@ -216,7 +249,8 @@ class RegisterPage extends StatelessWidget {
                         children: [
                           const Text(
                             "Already have an account?",
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(
+                                color: Colors.white, fontFamily: 'NeonLight'),
                           ),
                           TextButton(
                             onPressed: () {
@@ -224,7 +258,8 @@ class RegisterPage extends StatelessWidget {
                             },
                             child: const Text(
                               "Login",
-                              style: TextStyle(color: Colors.blue),
+                              style: TextStyle(
+                                  color: Colors.blue, fontFamily: 'NeonLight'),
                             ),
                           ),
                         ],

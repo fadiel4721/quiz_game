@@ -31,6 +31,7 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
       }
 
       final userName = user.displayName ?? user.email ?? 'Unknown';
+      final userPhotoUrl = user.photoURL ?? '';  // Ambil photoUrl dari FirebaseAuth
 
       // Siapkan participants
       final List<String> participants = [userName];
@@ -50,8 +51,8 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
           documentId: matchId, // Document ID sama dengan matchId
         );
 
-        // Emit state tanpa simpan ke Firestore
-        emit(RoomSuccess(match: newRoom));
+        // Emit state tanpa simpan ke Firestore, dengan photoUrl
+        emit(RoomSuccess(match: newRoom, photoUrl: userPhotoUrl));
       } else if (event.type == 'double') {
         // Mode "double": Simpan ke Firestore
         final String roomCode = DateTime.now().millisecondsSinceEpoch.toString();
@@ -68,7 +69,8 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
         // Simpan dokumen ke Firestore dengan ID tertentu
         await firestore.collection('matches').doc(matchId).set(newRoom.toFirestore());
 
-        emit(RoomSuccess(match: newRoom));
+        // Emit state dengan photoUrl
+        emit(RoomSuccess(match: newRoom, photoUrl: userPhotoUrl));
       }
     } catch (e) {
       emit(RoomFailure(message: 'Failed to create room: ${e.toString()}'));
@@ -94,12 +96,6 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
       final MatchModel room = MatchModel.fromFirestore(
           snapshot.data() as Map<String, dynamic>, snapshot.id);
 
-      // Validasi jumlah peserta (maksimal 2 untuk tipe double)
-      if (room.type == 'double' && room.participants.length >= 2) {
-        emit(RoomFailure(message: 'Room is full.'));
-        return;
-      }
-
       // Ambil pengguna yang sedang login
       final user = auth.currentUser;
 
@@ -108,39 +104,36 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
         return;
       }
 
-      final userName =
-          user.displayName ?? user.email ?? 'Unknown'; // Ambil nama atau email
+      final userName = user.displayName ?? user.email ?? 'Unknown'; 
+      final userPhotoUrl = user.photoURL ?? '';  // Ambil photoUrl dari FirebaseAuth
 
-      // Tambahkan UID ke peserta
-      final updatedParticipants = List<String>.from(room.participants)
-        ..add(userName);
+      // Pastikan participants tidak null
+      final updatedParticipants = List<String>.from(room.participants ?? [])..add(userName);
 
       // Menambahkan skor awal untuk pengguna baru
       final updatedScore = Map<String, int>.from(room.scores)
-        ..putIfAbsent(
-            user.uid, () => 0); // Menambahkan skor 0 untuk pengguna baru
+        ..putIfAbsent(user.uid, () => 0);
 
       // Update room di Firestore
       await firestore.collection('matches').doc(event.roomCode).update({
         'participants': updatedParticipants,
-        'score': updatedScore, // Update field score
+        'score': updatedScore,
       });
 
-      // Emit state baru dengan data yang diperbarui
+      // Emit state baru dengan data yang diperbarui dan photoUrl
       emit(RoomSuccess(
         match: room.copyWith(
           participants: updatedParticipants,
-          score: updatedScore, // Mengupdate skor
+          score: updatedScore,
         ),
+        photoUrl: userPhotoUrl,  // Menambahkan photoUrl ke dalam state
       ));
     } catch (e) {
       emit(RoomFailure(message: 'Failed to join room: ${e.toString()}'));
     }
   }
 
-  // Logika untuk mulai kuis (akan digunakan nanti)
-
-  // Logika untuk memulai quiz (mengaktifkan room)
+  // Logika untuk memulai quiz
   Future<void> _onStartQuiz(
     StartQuizEvent event,
     Emitter<RoomState> emit,
@@ -148,10 +141,7 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
     emit(RoomLoading());
     try {
       // Update isActive menjadi true di Firestore
-      await firestore
-          .collection('matches')
-          .doc(event.roomCode)
-          .update({'isActive': true});
+      await firestore.collection('matches').doc(event.roomCode).update({'isActive': true});
 
       // Ambil room terbaru untuk memastikan data terupdate
       final DocumentSnapshot snapshot =
@@ -165,7 +155,7 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
       final MatchModel room = MatchModel.fromFirestore(
           snapshot.data() as Map<String, dynamic>, snapshot.id);
 
-      emit(RoomSuccess(match: room));
+      emit(RoomSuccess(match: room, photoUrl: ''));
     } catch (e) {
       emit(RoomFailure(message: 'Failed to start quiz: ${e.toString()}'));
     }

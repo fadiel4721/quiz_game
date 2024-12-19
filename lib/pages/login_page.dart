@@ -30,7 +30,8 @@ class LoginPage extends StatelessWidget {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: kDefaultPadding),
-                child: SingleChildScrollView( // Untuk menghindari overflow
+                child: SingleChildScrollView(
+                  // Untuk menghindari overflow
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -43,7 +44,8 @@ class LoginPage extends StatelessWidget {
                           height: 150,
                         ),
                       ),
-                      const SizedBox(height: 20), // Spasi antara animasi dan teks
+                      const SizedBox(
+                          height: 20), // Spasi antara animasi dan teks
 
                       // Welcome Text
                       Text(
@@ -54,11 +56,14 @@ class LoginPage extends StatelessWidget {
                             .copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
+                              fontFamily: 'NeonLight', // Update font family
                             ),
                       ),
                       const Text(
                         "Masukkan email dan password",
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'NeonLight'), // Update font family
                       ),
                       const SizedBox(height: 20),
 
@@ -67,6 +72,9 @@ class LoginPage extends StatelessWidget {
                         controller: emailC,
                         decoration: InputDecoration(
                           labelText: 'Email',
+                          labelStyle: TextStyle(
+                              fontFamily:
+                                  'NeonLight'), // Update label font family
                           prefixIcon: const Icon(Icons.email),
                           filled: true,
                           fillColor: Colors.grey[200],
@@ -87,6 +95,9 @@ class LoginPage extends StatelessWidget {
                             obscureText: isObscured,
                             decoration: InputDecoration(
                               labelText: 'Password',
+                              labelStyle: TextStyle(
+                                  fontFamily:
+                                      'NeonLight'), // Update label font family
                               prefixIcon: const Icon(Icons.lock),
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -161,13 +172,22 @@ class LoginPage extends StatelessWidget {
                                     }
                                   : null,
                               child: state is AuthStateLoading
-                                  ? const Text('Loading...')
+                                  ? Text(
+                                      'Loading...',
+                                      style: TextStyle(
+                                        fontFamily:
+                                            'NeonLight', // Update font family for loading text
+                                      ),
+                                    )
                                   : Text(
                                       'Login',
                                       style: Theme.of(context)
                                           .textTheme
                                           .labelLarge!
-                                          .copyWith(color: Colors.black),
+                                          .copyWith(
+                                              color: Colors.black,
+                                              fontFamily:
+                                                  'NeonLight'), // Update button font family
                                     ),
                             ),
                           );
@@ -182,16 +202,18 @@ class LoginPage extends StatelessWidget {
                         children: [
                           const Text(
                             "Don't have an account?",
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(
+                                color: Colors.white, fontFamily: 'NeonLight'),
                           ),
                           TextButton(
                             onPressed: () {
-                             print("Navigating to Register Page");
+                              print("Navigating to Register Page");
                               context.go('/register');
                             },
                             child: const Text(
                               "Register",
-                              style: TextStyle(color: Colors.blue),
+                              style: TextStyle(
+                                  color: Colors.blue, fontFamily: 'NeonLight'),
                             ),
                           ),
                         ],
@@ -207,7 +229,6 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-
 
 
                     // Sign in with other options

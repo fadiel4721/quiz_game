@@ -15,14 +15,17 @@ class RoomInitial extends RoomState {}
 class RoomLoading extends RoomState {}
 
 /// State untuk menunjukkan sukses membuat atau mengelola room
+/// State untuk menunjukkan sukses membuat atau mengelola room
 class RoomSuccess extends RoomState {
   final MatchModel? match; // Data room yang berhasil dibuat atau diupdate
+  final String photoUrl;  // Menyimpan photoUrl untuk ditampilkan di UI
 
-  const RoomSuccess({this.match}); // match bisa null
+  const RoomSuccess({this.match, required this.photoUrl});
 
   @override
-  List<Object?> get props => [match];
+  List<Object?> get props => [match, photoUrl];
 }
+
 
 /// State saat terjadi kesalahan
 class RoomFailure extends RoomState {

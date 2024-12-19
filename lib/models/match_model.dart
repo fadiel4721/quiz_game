@@ -1,6 +1,7 @@
 class MatchModel {
-  final String matchId;  // matchId tidak nullable lagi, karena harus dihasilkan
-  final String? roomCode;  // roomCode nullable karena hanya diperlukan di mode double
+  final String matchId; // matchId tidak nullable lagi, karena harus dihasilkan
+  final String?
+      roomCode; // roomCode nullable karena hanya diperlukan di mode double
   final String type;
   final List<String> participants;
   final bool isActive;
@@ -8,8 +9,8 @@ class MatchModel {
   final String? documentId;
 
   MatchModel({
-    required this.matchId,  // matchId sekarang required
-    this.roomCode,  // roomCode tetap nullable
+    required this.matchId, // matchId sekarang required
+    this.roomCode, // roomCode tetap nullable
     required this.type,
     required this.participants,
     required this.isActive,
@@ -19,8 +20,8 @@ class MatchModel {
 
   Map<String, dynamic> toFirestore() {
     return {
-      'matchId': matchId,  // matchId disertakan pada data Firestore
-      'roomCode': roomCode,  // roomCode untuk mode double
+      'matchId': matchId, // matchId disertakan pada data Firestore
+      'roomCode': roomCode, // roomCode untuk mode double
       'type': type,
       'participants': participants,
       'isActive': isActive,
@@ -28,10 +29,11 @@ class MatchModel {
     };
   }
 
-  factory MatchModel.fromFirestore(Map<String, dynamic> firestoreData, String docId) {
+  factory MatchModel.fromFirestore(
+      Map<String, dynamic> firestoreData, String docId) {
     return MatchModel(
-      matchId: firestoreData['matchId'],  // matchId disalin dari Firestore
-      roomCode: firestoreData['roomCode'],  // roomCode disalin jika ada
+      matchId: firestoreData['matchId'], // matchId disalin dari Firestore
+      roomCode: firestoreData['roomCode'], // roomCode disalin jika ada
       type: firestoreData['type'],
       participants: List<String>.from(firestoreData['participants']),
       isActive: firestoreData['isActive'],

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-// import 'package:permission_handler/permission_handler.dart';
-// import 'package:image_picker/image_picker.dart';
 import 'package:pm1_task_management/bloc/profile/profile_bloc.dart';
 import 'package:pm1_task_management/routes/router_name.dart';
 
@@ -48,7 +46,7 @@ class ProfilPage extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'NeonLight',
                         fontSize: 18,
-                        color: Colors.white, // Ubah sesuai background
+                        color: Colors.white,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -58,8 +56,7 @@ class ProfilPage extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'NeonLight',
                       fontSize: 18,
-                      color:
-                          Colors.white, // Sesuaikan dengan kontras background
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(width: 80), // Placeholder agar konten seimbang
@@ -75,8 +72,8 @@ class ProfilPage extends StatelessWidget {
           SvgPicture.asset(
             "assets/svg/bg.svg",
             fit: BoxFit.fitWidth,
-            width: double.infinity, // Agar SVG memenuhi lebar layar
-            height: double.infinity, // Agar SVG memenuhi tinggi layar
+            width: double.infinity,
+            height: double.infinity,
           ),
           SafeArea(
             child: Center(
@@ -84,8 +81,7 @@ class ProfilPage extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Card(
-                    color: const Color(0xFF001F3F)
-                        .withOpacity(0.9), // Ganti warna sesuai permintaan
+                    color: const Color(0xFF001F3F).withOpacity(0.9),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -130,11 +126,6 @@ class ProfilPage extends StatelessWidget {
                                         FileImage(File(state.image.path)),
                                     radius: 50,
                                     backgroundColor: Colors.grey.shade300,
-                                    child: const Icon(
-                                      Icons.person,
-                                      size: 50,
-                                      color: Colors.grey,
-                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 20),
@@ -159,20 +150,32 @@ class ProfilPage extends StatelessWidget {
                                         .add(ProfileEventUpdateName(
                                           name: nameC.text,
                                           uid: uid!,
-                                          file: File(state.image.path),
                                         ));
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue.shade700,
+                                    backgroundColor:
+                                        const Color(0xFF001F3F), // Warna tombol
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 15),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
+                                    elevation:
+                                        10, // Tinggi shadow (lebih menonjol)
+                                    shadowColor: Colors.white.withOpacity(
+                                        0.5), // Warna shadow putih dengan opasitas 50%
+                                    side: const BorderSide(
+                                      color: Color.fromARGB(255, 12, 7, 7), // Garis putih di sekitar tombol
+                                      width: 2,
+                                    ),
                                   ),
                                   child: const Text(
                                     "UPDATE",
-                                    style: TextStyle(color: Colors.white),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'NeonLight',
+                                      fontSize: 18,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -225,10 +228,16 @@ class ProfilPage extends StatelessWidget {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
+                                    elevation: 5, // Shadow depth
+                                    shadowColor: Colors.black54, // Shadow color
                                   ),
                                   child: const Text(
                                     "UPDATE",
-                                    style: TextStyle(color: Colors.white),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'NeonLight',
+                                      fontSize: 18,
+                                    ),
                                   ),
                                 ),
                               ],

@@ -79,16 +79,23 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
       emit(ProfileStateLoading());
 
+      // Update nama di Firestore
       await users.doc(event.uid).update({'name': event.name});
-      emit(ProfileStateNameUpdated());
-      Reference storageRef = storage.ref("users/${event.uid}.jpg");
 
-      await storageRef.putFile(event.file!);
-      var photo = await storageRef.getDownloadURL();
-      await firestore.collection('users').doc(event.uid).set({
-        "photoUrl" : photo,
-        "name" : event.name,
-      }, SetOptions(merge: true));
+      // Jika file gambar tersedia, lakukan upload ke Firebase Storage
+      if (event.file != null) {
+        Reference storageRef = storage.ref("users/${event.uid}.jpg");
+        await storageRef.putFile(event.file!);
+        var photo = await storageRef.getDownloadURL();
+
+        // Update photoUrl di Firestore
+        await firestore.collection('users').doc(event.uid).set({
+          "photoUrl": photo,
+        }, SetOptions(merge: true));
+      }
+
+      // Emit state berhasil
+      emit(ProfileStateNameUpdated());
     } on FirebaseException catch (e) {
       emit(ProfileStateError(
           message: e.message ?? 'Terjadi kesalahan pada Firebase'));
