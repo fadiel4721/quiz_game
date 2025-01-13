@@ -168,10 +168,10 @@ class AdminDashboard extends StatelessWidget {
                 debugPrint('Navigating to: ${Routes.categoryPage}');
                 context.goNamed(Routes.categoryPage);
               },
-              child: const Text('Manage'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueAccent,
               ),
+              child: const Text('Manage'),
             ),
           ],
         ),
@@ -227,10 +227,10 @@ class AdminDashboard extends StatelessWidget {
                 debugPrint('Navigating to: ${Routes.questionPage}');
                 context.goNamed(Routes.questionPage);
               },
-              child: const Text('Manage'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
               ),
+              child: const Text('Manage'),
             ),
           ],
         ),

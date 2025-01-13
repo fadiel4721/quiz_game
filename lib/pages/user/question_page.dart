@@ -6,6 +6,7 @@ import 'package:pm1_task_management/bloc/match/match_state.dart';
 import 'package:pm1_task_management/pages/user/result_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flame_audio/flame_audio.dart'; // Paket untuk audio
 
 class QuestionsPage extends StatefulWidget {
   final String categoryUid;
@@ -13,11 +14,11 @@ class QuestionsPage extends StatefulWidget {
   final String userId;
 
   const QuestionsPage({
-    Key? key,
+    super.key,
     required this.categoryUid,
     required this.matchId,
     required this.userId,
-  }) : super(key: key);
+  });
 
   @override
   _QuestionsPageState createState() => _QuestionsPageState();
@@ -36,6 +37,9 @@ class _QuestionsPageState extends State<QuestionsPage> {
     context
         .read<MatchBloc>()
         .add(LoadQuestionsEvent(categoryUid: widget.categoryUid));
+    
+    // Memulai musik latar belakang
+    FlameAudio.bgm.play('quiz.mp3', volume: 0.5); // Ganti dengan nama file audio yang sesuai
   }
 
   Future<void> _updateMatchEndTimeAndDuration() async {
@@ -137,6 +141,12 @@ class _QuestionsPageState extends State<QuestionsPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    FlameAudio.bgm.stop(); // Hentikan musik saat halaman ini dihentikan
+  }
+
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
@@ -161,6 +171,8 @@ class _QuestionsPageState extends State<QuestionsPage> {
                   listener: (context, state) {
                     if (state is MatchCompleted) {
                       if (mounted) {
+                        // Hentikan musik saat beralih ke halaman hasil
+                        FlameAudio.bgm.stop();
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
@@ -210,7 +222,6 @@ class _QuestionsPageState extends State<QuestionsPage> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Menambahkan teks "Keluar Game" di pojok kiri atas dengan font family
                           Positioned(
                             top: 20,
                             left: 16,
@@ -224,7 +235,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                   fontFamily:
-                                      'NeonLight', // Tambahkan font family
+                                      'NeonLight',
                                 ),
                               ),
                             ),
@@ -283,7 +294,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                     style: const TextStyle(fontSize: 16)),
                               ),
                             );
-                          }).toList(),
+                          }),
                           const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -304,24 +315,23 @@ class _QuestionsPageState extends State<QuestionsPage> {
                               ElevatedButton(
                                 onPressed: _nextQuestion,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:const Color(0xFF001F3F) ,
+                                  backgroundColor: Colors.blue,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text('Skip',
+                                child: const Text('Next',
                                     style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.white,
                                         fontWeight: FontWeight.bold)),
                               ),
                             ],
                           ),
                         ],
                       );
-                    } else {
-                      return const Center(child: Text('Terjadi kesalahan.'));
                     }
+
+                    return const SizedBox();
                   },
                 ),
               ),

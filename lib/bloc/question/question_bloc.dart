@@ -22,7 +22,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       var snapshot = await _firestore.collection('questions').get();
       List<QuestionModel> questions = snapshot.docs
           .map((doc) => QuestionModel.fromFirestore(
-                doc.data() as Map<String, dynamic>,
+                doc.data(),
                 doc.id,
               ))
           .toList();

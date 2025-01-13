@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart'; // Contoh untuk autentikasi F
 class ResultPage extends StatelessWidget {
   final Map<String, int> scores;
 
-  const ResultPage({Key? key, required this.scores}) : super(key: key);
+  const ResultPage({super.key, required this.scores});
 
   @override
   Widget build(BuildContext context) {
