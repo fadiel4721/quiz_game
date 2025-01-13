@@ -31,7 +31,8 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
       }
 
       final userName = user.displayName ?? user.email ?? 'Unknown';
-      final userPhotoUrl = user.photoURL ?? '';  // Ambil photoUrl dari FirebaseAuth
+      final userPhotoUrl =
+          user.photoURL ?? ''; // Ambil photoUrl dari FirebaseAuth
 
       // Siapkan participants
       final List<String> participants = [userName];
@@ -55,7 +56,8 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
         emit(RoomSuccess(match: newRoom, photoUrl: userPhotoUrl));
       } else if (event.type == 'double') {
         // Mode "double": Simpan ke Firestore
-        final String roomCode = DateTime.now().millisecondsSinceEpoch.toString();
+        final String roomCode =
+            DateTime.now().millisecondsSinceEpoch.toString();
         final MatchModel newRoom = MatchModel(
           matchId: matchId, // Gunakan matchId yang dihasilkan
           roomCode: roomCode, // RoomCode untuk mode double
@@ -67,7 +69,10 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
         );
 
         // Simpan dokumen ke Firestore dengan ID tertentu
-        await firestore.collection('matches').doc(matchId).set(newRoom.toFirestore());
+        await firestore
+            .collection('matches')
+            .doc(matchId)
+            .set(newRoom.toFirestore());
 
         // Emit state dengan photoUrl
         emit(RoomSuccess(match: newRoom, photoUrl: userPhotoUrl));
@@ -104,11 +109,13 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
         return;
       }
 
-      final userName = user.displayName ?? user.email ?? 'Unknown'; 
-      final userPhotoUrl = user.photoURL ?? '';  // Ambil photoUrl dari FirebaseAuth
+      final userName = user.displayName ?? user.email ?? 'Unknown';
+      final userPhotoUrl =
+          user.photoURL ?? ''; // Ambil photoUrl dari FirebaseAuth
 
       // Pastikan participants tidak null
-      final updatedParticipants = List<String>.from(room.participants ?? [])..add(userName);
+      final updatedParticipants = List<String>.from(room.participants ?? [])
+        ..add(userName);
 
       // Menambahkan skor awal untuk pengguna baru
       final updatedScore = Map<String, int>.from(room.scores)
@@ -126,7 +133,7 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
           participants: updatedParticipants,
           score: updatedScore,
         ),
-        photoUrl: userPhotoUrl,  // Menambahkan photoUrl ke dalam state
+        photoUrl: userPhotoUrl, // Menambahkan photoUrl ke dalam state
       ));
     } catch (e) {
       emit(RoomFailure(message: 'Failed to join room: ${e.toString()}'));
@@ -141,7 +148,10 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
     emit(RoomLoading());
     try {
       // Update isActive menjadi true di Firestore
-      await firestore.collection('matches').doc(event.roomCode).update({'isActive': true});
+      await firestore
+          .collection('matches')
+          .doc(event.roomCode)
+          .update({'isActive': true});
 
       // Ambil room terbaru untuk memastikan data terupdate
       final DocumentSnapshot snapshot =

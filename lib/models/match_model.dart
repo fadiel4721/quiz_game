@@ -57,7 +57,7 @@ class MatchModel {
       type: type ?? this.type,
       participants: participants ?? this.participants,
       isActive: isActive ?? this.isActive,
-      scores: scores ?? this.scores,
+      scores: scores ?? scores,
       documentId: documentId ?? this.documentId,
     );
   }

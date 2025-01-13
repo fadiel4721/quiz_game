@@ -7,7 +7,7 @@ import 'package:pm1_task_management/bloc/room/room_event.dart';
 import 'package:pm1_task_management/bloc/room/room_state.dart';
 
 class SelectRoomPage extends StatefulWidget {
-  const SelectRoomPage({Key? key}) : super(key: key);
+  const SelectRoomPage({super.key});
 
   @override
   _SelectRoomPageState createState() => _SelectRoomPageState();

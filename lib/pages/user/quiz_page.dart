@@ -6,7 +6,7 @@ import 'package:pm1_task_management/pages/user/question_page.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // Import package svg
 
 class QuizPage extends StatelessWidget {
-  const QuizPage({Key? key}) : super(key: key);
+  const QuizPage({super.key});
 
   // Fungsi untuk mencari pertandingan yang sudah ada berdasarkan kategori
   Future<String?> findExistingMatch(String categoryUid) async {

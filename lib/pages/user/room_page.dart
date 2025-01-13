@@ -10,7 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class RoomPage extends StatelessWidget {
   final String roomCode;
 
-  const RoomPage({Key? key, required this.roomCode}) : super(key: key);
+  const RoomPage({super.key, required this.roomCode});
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +153,7 @@ class BannerUser extends StatelessWidget {
   final String? photoUrl;
   final String? name;
 
-  const BannerUser({Key? key, this.photoUrl, this.name}) : super(key: key);
+  const BannerUser({super.key, this.photoUrl, this.name});
 
   @override
   Widget build(BuildContext context) {

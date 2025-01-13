@@ -15,7 +15,7 @@ class RegisterPage extends StatelessWidget {
       TextEditingController(); // Controller untuk confirm password
 
   // Default role is set to 'user'
-  final String _role = 'user'; // No need for dropdown, role is fixed
+  final String _role = 'user'; 
 
   @override
   Widget build(BuildContext context) {

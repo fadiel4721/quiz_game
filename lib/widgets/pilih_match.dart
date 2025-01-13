@@ -9,7 +9,7 @@ import 'package:pm1_task_management/routes/router_name.dart';
 class PilihMatch extends StatefulWidget {
   final VoidCallback onPressed;
 
-  const PilihMatch({Key? key, required this.onPressed}) : super(key: key);
+  const PilihMatch({super.key, required this.onPressed});
 
   @override
   _PilihMatchState createState() => _PilihMatchState();

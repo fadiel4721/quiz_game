@@ -9,7 +9,7 @@ import 'package:pm1_task_management/utils/constants.dart';
 import 'package:go_router/go_router.dart'; // Pastikan ini diimport
 
 class WelcomeScreen extends StatelessWidget {
-  WelcomeScreen({super.key});
+  const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
